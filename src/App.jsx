@@ -82,6 +82,7 @@ function App() {
 
                 <UserInfo
                   name={name}
+                  gender ={results?.gender}
                   age={results?.age}
                   nationality={results?.nationality}
                 />
