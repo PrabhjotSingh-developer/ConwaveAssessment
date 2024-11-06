@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Loader from "./Components/Loader/Loader";
 import UserInfo from "./Components/UserInfo/UserInfo";
+import {
+  fetchAge,
+  fetchGender,
+  fetchNationality,
+} from "./features/nameSlice.js";
+import { useDispatch } from "react-redux";
 function App() {
   const [name, setName] = useState("");
-  const [results, setResults] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(null);
+  const [showResult, setShowResult] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setShowResult(false);
+  }, [name]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (name.match(/[0-9]/) !== null) {
       setError("Name should not contain numbers.");
       setResults(null);
@@ -18,32 +25,20 @@ function App() {
       return;
     }
     if (name.length < 3) {
-      toast.error("Name must be greater than 3 digits");
+      toast.error("Name must be greater than 3 characters");
       return;
     }
-    try {
-      setLoading(true);
-
-      const [ageRes, genderRes, nationalityRes] = await Promise.all([
-        axios.get(`https://api.agify.io?name=${name}`),
-        axios.get(`https://api.genderize.io?name=${name}`),
-        axios.get(`https://api.nationalize.io?name=${name}`),
-      ]);
-      setResults({
-        age: ageRes.data.age,
-        gender: genderRes.data.gender,
-        nationality: nationalityRes.data.country,
-      });
-    } catch (error) {
-      setError("Failed to fetch data. Please try again.");
-    } finally {
-      setLoading(false);
+    if (name.length > 20) {
+      toast.error("Name must be less than 20 characters");
+      return;
+    }
+    if (name) {
+      setShowResult(true);
+      dispatch(fetchAge(name));
+      dispatch(fetchGender(name));
+      dispatch(fetchNationality(name));
     }
   };
-  useEffect(() => {
-    setResults(null);
-    setError(null);
-  }, [name]);
   return (
     <div className="bg-gray-800">
       <div className="w-[100%] px-4 md:w-[60%] mx-auto flex flex-col gap-4 pt-10  text-white h-[100vh]">
@@ -69,27 +64,12 @@ function App() {
             Guess
           </button>
         </form>
-        {error && <p className="error text-center">{error}</p>}
-        <div>
-          {loading ? (
-            <div className="bg-white text-black h-[200px] flex justify-center w-[100%] items-center">
-              <Loader />
-            </div>
-          ) : (
-            results && (
-              <div className="bg-white text-black h-[200px] flex justify-center w-[100%] items-center flex-col gap-4">
-                <h2 className="text-2xl font-semi">Guess Results</h2>
 
-                <UserInfo
-                  name={name}
-                  gender ={results?.gender}
-                  age={results?.age}
-                  nationality={results?.nationality}
-                />
-              </div>
-            )
-          )}
-        </div>
+        {showResult && (
+          <div className="bg-white text-black py-10 flex justify-center items-center h-[200px]">
+            <UserInfo name={name} />
+          </div>
+        )}
       </div>
     </div>
   );
