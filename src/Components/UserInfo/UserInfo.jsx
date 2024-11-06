@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Loader from "../Loader/Loader";
 import { toast } from "react-toastify";
-import { defaultCountry, defaultGender } from "../../Constants/constant.js";
+import { defaultCountry, defaultGender } from "../../Constants/string.js";
 const UserInfo = ({ name }) => {
   const { gender, nationality, age, loading, error } = useSelector(
     (state) => state.name

@@ -8,6 +8,7 @@ import {
   fetchNationality,
 } from "./features/nameSlice.js";
 import { useDispatch } from "react-redux";
+import { error1, error2 } from "./Constants/string.js";
 function App() {
   const [name, setName] = useState("");
   const [showResult, setShowResult] = useState(false);
@@ -16,7 +17,7 @@ function App() {
   useEffect(() => {
     setShowResult(false);
   }, [name]);
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (name.match(/[0-9]/) !== null) {
       setError("Name should not contain numbers.");
@@ -25,18 +26,18 @@ function App() {
       return;
     }
     if (name.length < 3) {
-      toast.error("Name must be greater than 3 characters");
+      toast.error(error1);
       return;
     }
     if (name.length > 20) {
-      toast.error("Name must be less than 20 characters");
+      toast.error(error2);
       return;
     }
     if (name) {
       setShowResult(true);
-      dispatch(fetchAge(name));
-      dispatch(fetchGender(name));
-      dispatch(fetchNationality(name));
+      await dispatch(fetchAge(name));
+      await dispatch(fetchGender(name));
+      await dispatch(fetchNationality(name));
     }
   };
   return (
